@@ -6,14 +6,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 const List<Widget> options = <Widget>[Text('Login'), Text('Sign up')];
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignupPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<SignupPage> {
   final TextEditingController controllerUsername = TextEditingController();
   final TextEditingController controllerPassword = TextEditingController();
   final _formKey = GlobalKey<FormState>();
