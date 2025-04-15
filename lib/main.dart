@@ -1,4 +1,5 @@
-import 'package:asyncchat/signup_page.dart';
+import 'package:asyncchat/login_page.dart';
+
 import 'package:asyncchat/utils/brand_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,6 +35,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return SignupPage();
+    return LoginPage();
   }
 }
