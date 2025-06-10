@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:asyncchat/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -55,8 +56,9 @@ class _LoginPageState extends State<LoginPage> {
         userToken = data['token']; // Store the token temporarily
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful')),
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>  ChatPage(username: username, password: password,)),
       );
 
       // You can use the token for future requests in your app

@@ -1,3 +1,4 @@
+import 'package:asyncchat/chat_page.dart';
 import 'package:asyncchat/login_page.dart';
 
 import 'package:asyncchat/utils/brand_colors.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: BrandColors.backgroundColor,
       ),
       home: const MyHomePage(),
+
     );
   }
 }
