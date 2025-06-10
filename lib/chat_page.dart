@@ -14,16 +14,16 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  // Make socket nullable to handle cases where it might not be initialized
   IO.Socket? socket;
   List<_ChatMessage> messages = [];
   TextEditingController _controller = TextEditingController();
+  ScrollController _scrollController = ScrollController();
   String? _authToken;
 
   @override
   void initState() {
     super.initState();
-    _performLogin(); // Start login process
+    _performLogin();
   }
 
   Future<void> _performLogin() async {
@@ -53,7 +53,6 @@ class _ChatPageState extends State<ChatPage> {
       }
     } catch (e) {
       print('Error during login process: $e');
-      // Provide user feedback for network issues
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Network error or server unreachable during login.')),
       );
@@ -66,28 +65,22 @@ class _ChatPageState extends State<ChatPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cannot connect to chat: authentication failed.')),
       );
-      return; // Prevent connecting without a token
+      return;
     }
 
-    final String socketUrl = 'http://37.63.57.37:3000'; // ** IMPORTANT: Adjust this URL **
-    // For Android Emulator: http://10.0.2.2:3000
-    // For Physical Device: http://YOUR_MACHINE_IP_ADDRESS:3000
+    final String socketUrl = 'http://37.63.57.37:3000';
 
     print('Attempting to connect to Socket.IO at $socketUrl with token: $_authToken');
 
-    // Initialize the socket
     socket = IO.io(socketUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
       'auth': {'token': _authToken},
     });
 
-    socket!.connect(); // Use `!` because we've just initialized it above
-
-    // --- Socket Event Listeners (Crucial for Debugging) ---
+    socket!.connect();
     socket!.onConnect((_) {
-      socket!.emit('join', widget.username); // Still emit join after successful connection
-
+      socket!.emit('join', widget.username);
     });
 
     socket!.onConnectError((err) {
@@ -128,6 +121,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           );
         });
+        _scrollToBottom();
       } else {
         print('Received invalid message format: $data');
       }
@@ -139,7 +133,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    // Only attempt to send if the socket is initialized and connected
     if (socket != null && socket!.connected && _controller.text.trim().isNotEmpty) {
       print('Sending message: ${_controller.text.trim()}');
       socket!.emit('message', {
@@ -155,11 +148,21 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   void dispose() {
-    // Only dispose if the socket was actually initialized
-    socket?.dispose(); // Use `?.` for null-safe disposal
+    socket?.dispose();
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -173,6 +176,7 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final msg = messages[index];
