@@ -20,10 +20,10 @@ class _LoginPageState extends State<LoginPage> {
   final List<bool> _selectedOptions = <bool>[true, false];
   bool vertical = false;
 
-  // Temporary variable to hold the token
+
   String? userToken;
 
-  // Register function
+
   Future<void> registerUser(BuildContext context, String username, String password) async {
     final response = await http.post(
       Uri.parse('http://37.63.57.37:3000/register'),
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Login function
+
   Future<void> loginUser(BuildContext context, String username, String password) async {
     final response = await http.post(
       Uri.parse('http://37.63.57.37:3000/login'),
@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
-        userToken = data['token']; // Store the token temporarily
+        userToken = data['token'];
       });
 
       Navigator.push(
@@ -61,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (context) =>  ChatPage(username: username, password: password,)),
       );
 
-      // You can use the token for future requests in your app
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: ${response.body}')),

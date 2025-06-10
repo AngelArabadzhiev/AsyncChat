@@ -10,19 +10,19 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow all origins for development, refine in production
+    origin: '*', 
     methods: ['GET', 'POST'],
   }
 });
 
 app.use(express.json());
 
-// MongoDB connection
+
 mongoose.connect('mongodb://localhost:27017/flutter_chat_db', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('MongoDB connection failed:', err));
 
-// User Schema and Model
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Registration Endpoint
+
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -46,7 +46,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login Endpoint
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -64,42 +64,40 @@ app.post('/login', async (req, res) => {
 
 // Socket.IO Authentication Middleware
 io.use((socket, next) => {
-  const token = socket.handshake.auth.token; // Expects token in 'auth' object
+  const token = socket.handshake.auth.token;
   if (!token) {
     return next(new Error('Authentication error: No token provided'));
   }
   try {
     const decoded = jwt.verify(token, 'secret_key');
-    socket.username = decoded.username; // Attach username to socket
+    socket.username = decoded.username;
     next();
   } catch (err) {
     next(new Error('Authentication error: Invalid token'));
   }
 });
 
-// Socket.IO Connection Handler
-io.on('connection', (socket) => {
-  console.log(`${socket.username} connected`);
-  // Inform everyone a user joined
-  io.emit('message', { username: 'System', message: `${socket.username} joined the chat.` });
 
-  // Handle incoming 'message' events from clients
+io.on('connection', (socket) => {
+
+
+  io.emit('message', { username: 'System', message: `${socket.username} has connected.` });
+
   socket.on('message', (data) => {
-    // 'data' from client is already an object: {username: ..., message: ...}
-    // We'll use the authenticated username from the socket for consistency
+
     const payload = {
       username: socket.username,
-      message: data.message, // Access the 'message' property from client's data
+      message: data.message,
     };
     console.log(`Message from ${payload.username}: ${payload.message}`);
-    // Broadcast the message object to all connected clients
-    io.emit('message', payload); // <--- Emit the object as expected by Flutter
+
+    io.emit('message', payload);
   });
 
-  // Handle client disconnect
+
   socket.on('disconnect', () => {
     console.log(`${socket.username} disconnected`);
-    // Inform everyone a user left
+
     io.emit('message', { username: 'System', message: `${socket.username} left the chat.` });
   });
 });
